@@ -1,0 +1,38 @@
+[
+{
+  "model": "main.experience",
+  "pk": "10381ded-e9e9-4dd7-b0bf-ecd43b33a6f4",
+  "fields": {
+    "title": "PSAF Fasilkom 2026",
+    "description": "Mendampingi mahasiswa baru selama masa orientasi fakultas, membantu mereka beradaptasi dengan kehidupan perkuliahan, membangun relasi antarteman, serta mengenali lingkungan akademik di Fasilkom UI.",
+    "category": "volunteer",
+    "thumbnail": "https://cdn.phototourl.com/free/2026-09-14-6784c837-c215-4dba-961e-9b20dbfd3216.jpg",
+    "started_at": "2026-09-14T05:15:35.260Z",
+    "ended_at": null
+  }
+},
+{
+  "model": "main.experience",
+  "pk": "62147abc-7c43-48d6-98dc-c05a476c6e44",
+  "fields": {
+    "title": "Open House 2025",
+    "description": "Mengenalkan kehidupan perkuliahan, lingkungan kampus, dan program studi kepada para peserta. Memandu sesi diskusi interaktif, berbagi cerita pengalaman kuliah secara langsung, serta mendampingi mereka di sepanjang rangkaian acara.",
+    "category": "volunteer",
+    "thumbnail": "https://cdn.phototourl.com/free/2026-09-14-f358f37a-9e48-44de-b0fc-ed51d0a8a393.jpg",
+    "started_at": "2026-09-14T05:15:35.247Z",
+    "ended_at": "2025-11-30T00:00:00Z"
+  }
+},
+{
+  "model": "main.experience",
+  "pk": "e88e5c42-082a-4a42-be1e-b44a24b6c558",
+  "fields": {
+    "title": "Betis Fasilkom 2025",
+    "description": "Menjadi sahabat bidang untuk divisi Mentor dan Peserta. Membantu dalam koordinasi kerja harian, memastikan alur informasi dan pengingat tugas tersampaikan dengan baik, serta mendukung kelancaran operasional divisi.",
+    "category": "volunteer",
+    "thumbnail": "https://cdn.phototourl.com/free/2026-09-14-6394c836-f8de-49e7-adc8-942bd80328f9.jpg",
+    "started_at": "2026-09-14T05:15:35.253Z",
+    "ended_at": "2026-05-09T00:00:00Z"
+  }
+}
+]

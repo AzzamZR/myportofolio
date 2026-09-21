@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block meta %}
+<title>Projects - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+<main>
+    <section class="section-container" id="project">
+        <div class="container">
+            <p class="section-kicker">My project so far</p>
+            <div class="section-header">
+                <h1>Projects</h1>
+                <a href="{% url 'main:create_project' %}" class="button action-add-button">
+                    <span aria-hidden="true">+</span> Tambah Proyek
+                </a>
+            </div>
+
+            <form method="get" action="{% url 'main:show_project' %}" class="search-bar">
+                <input type="search"
+                       name="title"
+                       value="{{ title_query }}"
+                       placeholder="Cari berdasarkan nama proyek"
+                       class="search-input"
+                       aria-label="Cari berdasarkan nama proyek">
+                <button type="submit" class="button">Cari</button>
+            </form>
+
+            <div class="project-grid">
+                {% for project in project_list %}
+                    <article class="project-card">
+                        <div class="project-card_img">
+                            {% if project.thumbnail %}
+                                <img src="{{ project.thumbnail }}" alt="Photo of {{ project.title }}">
+                            {% else %}
+                                <div class="project-card_no-img">
+                                    <span>No Image</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <h2>{{ project.title }}</h2>
+                        <span class="project-category">{{ project.get_category_display }}</span>
+                        <p class="project-description">{{ project.description }}</p>
+
+                        <div class="card-actions">
+                            {% include "components/project_delete_modal.html" with project=project %}
+                        </div>
+                    </article>
+                {% empty %}
+                    {% if title_query %}
+                        <p class="empty-state">Tidak ada proyek dengan judul tersebut.</p>
+                    {% else %}
+                        <p class="empty-state">Belum ada proyek yang ditambahkan.</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock content %}

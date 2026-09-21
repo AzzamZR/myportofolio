@@ -1,37 +1,37 @@
 <div class="action-buttons">
-    <a href="{% url 'main:edit_experience' experience.id %}" class="button button-edit">
+    <a href="{% url 'main:edit_project' project.id %}" class="button button-edit">
         Edit
     </a>
     <button type="button"
             class="button button-danger"
-            popovertarget="delete-exp-{{ experience.id }}"
-            aria-label="Hapus {{ experience.title }}"
-            title="Hapus experience">
-        Hapus Experience
+            popovertarget="delete-prj-{{ project.id }}"
+            aria-label="Hapus {{ project.title }}"
+            title="Hapus proyek">
+        Hapus Proyek
     </button>
 </div>
 
-<div id="delete-exp-{{ experience.id }}"
+<div id="delete-prj-{{ project.id }}"
      class="modal-dialog"
      popover="auto"
      role="dialog"
      aria-modal="true"
-     aria-labelledby="delete-exp-title-{{ experience.id }}">
+     aria-labelledby="delete-prj-title-{{ project.id }}">
     <button type="button"
             class="modal-backdrop"
-            popovertarget="delete-exp-{{ experience.id }}"
+            popovertarget="delete-prj-{{ project.id }}"
             popovertargetaction="hide"
             aria-label="Tutup konfirmasi hapus"></button>
     <div class="modal-content">
         <button type="button"
                 class="modal-close"
-                popovertarget="delete-exp-{{ experience.id }}"
+                popovertarget="delete-prj-{{ project.id }}"
                 popovertargetaction="hide"
                 aria-label="Tutup konfirmasi hapus">&times;</button>
-        <h2 id="delete-exp-title-{{ experience.id }}">Hapus Experience?</h2>
-        <p>Apakah Anda yakin ingin menghapus <strong>{{ experience.title }}</strong>?</p>
+        <h2 id="delete-prj-title-{{ project.id }}">Hapus Proyek?</h2>
+        <p>Apakah Anda yakin ingin menghapus <strong>{{ project.title }}</strong>?</p>
         
-        <form method="post" action="{% url 'main:delete_experience' experience.id %}" class="modal-delete-form">
+        <form method="post" action="{% url 'main:delete_project' project.id %}" class="modal-delete-form">
             {% csrf_token %}
             <div class="modal-pin-group">
                 <input type="password" 
@@ -43,7 +43,7 @@
             <div class="modal-actions">
                 <button type="button"
                         class="button button-secondary"
-                        popovertarget="delete-exp-{{ experience.id }}"
+                        popovertarget="delete-prj-{{ project.id }}"
                         popovertargetaction="hide">Batal</button>
                 <button type="submit" class="button button-danger">Ya, Hapus</button>
             </div>

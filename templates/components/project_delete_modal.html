@@ -2,6 +2,7 @@
     <a href="{% url 'main:edit_project' project.id %}" class="button button-edit">
         Edit
     </a>
+    {% if user.is_superuser %}
     <button type="button"
             class="button button-danger"
             popovertarget="delete-prj-{{ project.id }}"
@@ -9,8 +10,10 @@
             title="Hapus proyek">
         Hapus Proyek
     </button>
+    {% endif %}
 </div>
 
+{% if user.is_superuser %}
 <div id="delete-prj-{{ project.id }}"
      class="modal-dialog"
      popover="auto"
@@ -33,13 +36,6 @@
         
         <form method="post" action="{% url 'main:delete_project' project.id %}" class="modal-delete-form">
             {% csrf_token %}
-            <div class="modal-pin-group">
-                <input type="password" 
-                       name="secret_passcode" 
-                       placeholder="Masukkan PIN untuk menghapus" 
-                       required 
-                       class="search-input">
-            </div>
             <div class="modal-actions">
                 <button type="button"
                         class="button button-secondary"
@@ -50,3 +46,4 @@
         </form>
     </div>
 </div>
+{% endif %}

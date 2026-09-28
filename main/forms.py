@@ -3,17 +3,9 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm, Select, Textarea, TextInput, URLInput, DateTimeInput
 from main.models import Experience, Project
 
-SECRET_PASSCODE = "220107"
+
 
 class ExperienceForm(ModelForm):
-    secret_passcode = forms.CharField(
-        label="PIN",
-        widget=forms.PasswordInput(
-            attrs={"placeholder": "Masukkan PIN untuk menyimpan"}
-        ),
-        required=True,
-    )
-
     class Meta:
         model = Experience
         fields = [
@@ -56,21 +48,7 @@ class ExperienceForm(ModelForm):
             ),
         }
 
-    def clean_secret_passcode(self):
-        passcode = self.cleaned_data.get("secret_passcode")
-        if passcode != SECRET_PASSCODE:
-            raise ValidationError("PIN salah! Perubahan dibatalkan.")
-        return passcode
-
 class ProjectForm(ModelForm):
-    secret_passcode = forms.CharField(
-        label="PIN",
-        widget=forms.PasswordInput(
-            attrs={"placeholder": "Masukkan PIN untuk menyimpan"}
-        ),
-        required=True,
-    )
-
     class Meta:
         model = Project
         fields = [
@@ -105,9 +83,4 @@ class ProjectForm(ModelForm):
                 }
             ),
         }
-
-    def clean_secret_passcode(self):
-        passcode = self.cleaned_data.get("secret_passcode")
-        if passcode != SECRET_PASSCODE:
-            raise ValidationError("PIN salah! Perubahan dibatalkan.")
-        return passcode
+

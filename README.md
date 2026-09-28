@@ -11,7 +11,7 @@ Website portofolio pribadi milik **Azzam Zawawi Al Rasyid**, dikembangkan menggu
 
 ## Deskripsi Proyek
 
-Website ini merupakan portofolio pribadi berbasis Django yang menerapkan pola arsitektur **Model-View-Template (MVT)**. Proyek ini dibangun secara bertahap sepanjang semester, dimulai dari halaman statis HTML5/CSS3, kemudian dilanjutkan dengan integrasi database melalui Django ORM, dan terakhir penambahan fitur Form serta Data Delivery (JSON).
+Website ini merupakan portofolio pribadi berbasis Django yang menerapkan pola arsitektur **Model-View-Template (MVT)**. Proyek ini dibangun secara bertahap sepanjang semester, dimulai dari halaman statis HTML5/CSS3, kemudian dilanjutkan dengan integrasi database melalui Django ORM, kemudian penambahan fitur Form serta Data Delivery (JSON), dan terakhir penerapan Authentication, Session, Cookies, serta Authorization berbasis peran (pengunjung, pengguna biasa, Editor, dan pemilik portofolio).
 
 Tampilan portofolio mengusung desain *clean-modern* dengan palet warna biru muda yang lembut, tipografi **Space Grotesk** untuk judul, dan sistem *layout* responsif menggunakan CSS Grid dan Flexbox.
 
@@ -29,103 +29,19 @@ Tampilan portofolio mengusung desain *clean-modern* dengan palet warna biru muda
   - Menampilkan daftar proyek dalam bentuk **grid kartu** dengan efek *hover* (lift + zoom gambar).
   - Setiap kartu memiliki gambar *thumbnail*, kategori, judul, deskripsi, serta tombol Edit dan Hapus.
   - Dilengkapi fitur pencarian, form tambah, dan modal konfirmasi hapus.
-- **JSON Data Delivery:**
-  - Endpoint `/api/experience/` dan `/api/project/` mengembalikan data mentah berformat JSON.
-  - Mendukung filter berdasarkan judul melalui query parameter `?title=`.
-- **Proteksi PIN Sederhana:**
-  - Form Create/Edit dan aksi Delete dilindungi oleh kolom **PIN rahasia** yang divalidasi di sisi server melalui `clean_secret_passcode()` pada `forms.py` dan pengecekan di `views.py`.
+- **Autentikasi & Hak Akses Berbasis Peran (Tutorial 04 & Individual Assignment 4):**
+  - Register, Login, dan Logout menggunakan sistem autentikasi bawaan Django. Status login (username dan tombol Login/Logout) tampil di navbar.
+  - Cookie `last_login` ditampilkan di halaman profil dan dihapus saat logout.
+  - Empat peran dengan pengecekan di sisi server: pengunjung (hanya membaca; diarahkan ke halaman login untuk aksi yang butuh akun), pengguna biasa (membaca dan memberi star), Editor (hak pengguna biasa + dapat mengubah data), dan pemilik portofolio/superuser (dapat membuat, mengubah, dan menghapus data). Aksi yang tidak diizinkan mengembalikan HTTP 403.
+  - Peran Editor ditetapkan lewat Django Group bernama Editor di Django Admin, bukan lewat form registrasi.
+  - Tombol Tambah, Edit, dan Hapus disembunyikan di template bagi pengguna yang tidak berhak.
+  - Proteksi PIN dari Individual Assignment 3 digantikan oleh sistem ini.
+- **Fitur Star:**
+  - Pengguna yang login dapat memberi atau membatalkan star pada Experience dan Project (maksimal satu star per pengguna), lengkap dengan jumlah total star dan status star pengguna saat ini.
 - **Responsive Design:**
   - Layout otomatis menyesuaikan pada layar kecil (mobile) melalui media query `@media (max-width: 600px)`.
 - **Skeleton Template (`base.html`):**
   - Navbar dan footer konsisten di seluruh halaman melalui sistem `{% extends %}`.
-
----
-
-## Teknologi yang Digunakan
-
-- **Backend:** Django 5.2, Python
-- **Database:** SQLite (development), PostgreSQL (production di PWS)
-- **Frontend:** HTML5, CSS3 (Grid, Flexbox, Custom Properties), Django Template Language
-- **Deployment:** Pacil Web Service (PWS)
-- **Version Control:** Git & GitHub
-
----
-
-## Cara Menjalankan Proyek Secara Lokal
-
-1. **Clone repositori:**
-   ```bash
-   git clone https://github.com/AzzamZR/myportofolio.git
-   cd myportofolio
-   ```
-
-2. **Buat dan aktifkan virtual environment:**
-   ```bash
-   python -m venv env
-   # Windows:
-   .\env\Scripts\Activate.ps1
-   # macOS/Linux:
-   source env/bin/activate
-   ```
-
-3. **Pasang dependensi:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Terapkan migrasi database:**
-   ```bash
-   python manage.py migrate
-   ```
-
-5. **Jalankan server pengembangan:**
-   ```bash
-   python manage.py runserver
-   ```
-
-6. **Buka browser** dan akses `http://localhost:8000/`.
-
----
-
-## Struktur Folder
-
-```
-myportofolio/
-├── env/
-├── .git/
-├── .gitignore
-├── requirements.txt
-├── db.sqlite3
-├── manage.py
-├── main/
-│   ├── migrations/
-│   ├── admin.py
-│   ├── apps.py
-│   ├── forms.py          # ExperienceForm & ProjectForm
-│   ├── models.py         # Model Experience & Project
-│   ├── tests.py
-│   ├── urls.py           # Routing aplikasi main
-│   └── views.py          # Seluruh logika view
-├── portofolio/
-│   ├── settings.py
-│   ├── urls.py
-│   └── ...
-├── static/
-│   ├── css/
-│   │   └── style.css
-│   └── img/
-│       └── Foto.JPG
-└── templates/
-    ├── base.html
-    ├── index.html
-    ├── experience.html
-    ├── experience_form.html
-    ├── project.html
-    ├── project_form.html
-    └── components/
-        ├── experience_delete_modal.html
-        └── project_delete_modal.html
-```
 
 ---
 
@@ -162,6 +78,17 @@ Pada Tutorial 03, saya mempelajari konsep **Form** dan **Data Delivery (JSON)**.
 Pada Individual Assignment 3, saya baru benar-benar menambahkan **tab portofolio baru**, yaitu **Project**, yang seharusnya sudah mulai dikerjakan sejak Individual Assignment 2. Saya membuat model `Project` dengan field `id` (UUID), `title`, `description`, `category` (choices: Team/Individual), `thumbnail`, `started_at`, dan `ended_at`, serta menambahkan `class Meta: ordering = ["-started_at"]`. Setelah itu, saya membuat view `show_project`, `create_project`, `edit_project`, `delete_project`, dan `get_project_json`, template `project.html` dan `project_form.html`, serta endpoint `/api/project/` di `urls.py`.
 
 Selain melengkapi kedua tab (Experience & Project) dengan mekanisme Form dan Data Delivery, saya juga menambahkan fitur **Update (Edit)** yang belum dicontohkan di Tutorial 03, dengan memanfaatkan parameter `instance=` pada ModelForm. Saya juga menambahkan **proteksi PIN sederhana** pada form Create/Edit dan aksi Delete sebagai langkah antisipasi sementara sebelum materi Authentication diajarkan. Proses *refactor* ke `base.html` sempat menimbulkan beberapa error (`TemplateSyntaxError`, `NoReverseMatch`, `FieldError`) yang saya telusuri satu per satu. Saat menjalankan `python manage.py test`, saya juga menemukan dan memperbaiki beberapa *test* yang gagal karena tautan navbar yang belum sinkron dan migrasi *seed* data yang ikut berjalan di database *testing*.
+
+### Tutorial 4
+
+Pada Tutorial 04, saya mempelajari perbedaan authentication dan authorization, serta cara kerja session, cookie, dan CSRF. Saya membuat fitur registrasi, login, dan logout menggunakan sistem autentikasi bawaan Django (`UserCreationForm`, `AuthenticationForm`, `login()`, dan `logout()`), membuat template `register.html` dan `login.html`, lalu menampilkan status login di navbar `base.html`. Saya juga menambahkan cookie `last_login` yang dibuat dengan `set_cookie()` saat login, ditampilkan di halaman profil lewat `request.COOKIES`, dan dihapus dengan `delete_cookie()` saat logout.
+Pada bagian authorization, saya membatasi view yang mengubah data dengan `@login_required` dan pengecekan `is_superuser` (`PermissionDenied` menghasilkan 403), lalu menyembunyikan tombol yang tidak boleh dipakai melalui `{% if user.is_superuser %}` di template. Karena portofolio saya punya dua bagian, yaitu Project dan Experience, saya langsung menerapkan seluruh pola ini ke keduanya. Saya menambahkan ManyToManyField `starred_by` ke model Project dan Experience dengan `related_name` yang berbeda (`starred_projects` dan `starred_experiences`), membuat view `toggle_star_project` dan `toggle_star_experience`, serta komponen tombol star untuk masing-masing bagian.
+
+### Individual Assignment 4
+Karena fitur autentikasi, pembatasan hak akses superuser, dan star sudah saya terapkan pada Project dan Experience saat mengerjakan Tutorial 04, pada Individual Assignment 4 saya hanya perlu menambahkan satu peran baru, yaitu **Editor**.
+
+Peran Editor dibuat dengan Django Group `Editor` melalui Django Admin (`/admin`), lalu akun tertentu dimasukkan ke grup tersebut oleh superuser. Alasannya, form registrasi bawaan hanya meminta username dan password sehingga tidak ada cara bagi pengguna untuk memilih perannya sendiri, dan memang tidak seharusnya begitu. Di view, keanggotaan grup diperiksa dengan `request.user.groups.filter(name="Editor").exists()`: view edit menerima superuser dan Editor, sedangkan view create dan delete tetap hanya untuk superuser. Pengunjung tanpa login diarahkan ke halaman login oleh `@login_required`, sedangkan pengguna yang sudah login tetapi tidak berhak menerima `PermissionDenied` (403). Status Editor dikirim dari view ke template sebagai variabel `is_editor`, sehingga tombol Edit ditampilkan bagi superuser dan Editor, sedangkan tombol Tambah dan Hapus hanya bagi superuser. Tombol star hanya ditampilkan bagi pengguna yang sudah login. Pengecekan di server tetap dipertahankan karena menyembunyikan tombol tidak mencegah orang membuka URL-nya langsung.
+Karena hak akses sekarang ditangani oleh sistem autentikasi Django, saya juga menghapus proteksi PIN (`secret_passcode` dan `clean_secret_passcode()`) dari `forms.py` beserta pengecekannya di view.
 
 ---
 
@@ -439,3 +366,37 @@ Pada tahap ini, saya menggunakan Gemini terutama untuk membantu *debugging*, kar
 Pada tahap ini, saya menyadari bahwa proses *refactor* kode lama ternyata lebih rawan menimbulkan error dibanding menulis kode baru dari nol, karena ada banyak bagian yang mudah terlewat, seperti berkas HTML yang belum ikut di-*extend*, migrasi yang saling bergantung, atau referensi ke model yang sudah dihapus namun masih tertinggal di berkas lain. AI membantu saya menelusuri error tersebut satu per satu, tetapi saya tetap perlu memeriksa kembali setiap berkas secara manual untuk memastikan tidak ada bagian lain yang tertinggal.
 
 Saya juga menyadari bahwa proteksi PIN yang saya tambahkan bukan solusi keamanan yang sesungguhnya, karena PIN-nya masih *hardcoded* di `forms.py` dan tidak terhubung dengan sistem autentikasi Django. Saya perlu mempelajari konsep Authentication, Session, dan Cookies lebih lanjut di tutorial-tutorial berikutnya untuk benar-benar membatasi akses ke fitur Create, Update, dan Delete pada portofolio saya.
+
+### Tutorial 04 & Individual Assignment 4
+Pada tahap ini, saya menggunakan Gemini untuk memahami cara menerapkan pola star dan hak akses dari tutorial ke dua bagian portofolio saya (Experience dan Project), serta untuk memahami cara menentukan peran Editor.
+
+**Bagian yang Dibantu AI:**
+- Menjelaskan cara mengadaptasi fitur star dari Project ke Experience (model, view, URL, dan komponen template).
+- Menjelaskan cara membuat superuser dengan `createsuperuser`.
+- Membantu memahami cara menentukan peran Editor tanpa mengubah form registrasi.
+
+**Bagian yang Saya Kerjakan dan Putuskan Sendiri:**
+- Memutuskan untuk menerapkan seluruh pola Tutorial 04 langsung ke kedua bagian (Experience dan Project), bukan hanya Project.
+- Menulis dan menghubungkan model, view, URL, dan template untuk kedua bagian, lalu menjalankan migrasi.
+- Menghapus proteksi PIN dari form dan view karena sudah digantikan oleh autentikasi.
+- Membuat akun superuser, grup Editor, dan akun uji untuk setiap peran, lalu mencoba sendiri tiap peran di browser.
+- Memperbaiki sendiri error-error kecil yang muncul (misalnya import yang kurang, tipe parameter URL, dan typo nama URL).
+
+**AI Chat / Prompting Log**
+1. **Menerapkan fitur star ke dua bagian portofolio**
+  > *"Di tutorial ada fitur star, tapi contohnya cuma untuk Project. Sedangkan portofolioku punya section Project dan Experience, dan di Langkah 4 aku sudah nulis field starred_by di kedua model. Jadi gimana cara mengerjakan Langkah 5 (view, URL, dan template tombol star) untuk kedua section itu?"*
+
+  **Konteks & Tujuan:** Digunakan untuk memahami bahwa pola pada tutorial bisa dipakai ulang untuk model lain dengan mengganti nama model dan `related_name`, sehingga saya membuat `toggle_star_project` dan `toggle_star_experience` beserta komponen tombol masing-masing.
+
+2. **Membuat akun superuser**
+  > *"Aku belum punya superuser. Gimana cara membuatnya, dan apa bedanya dengan akun yang dibuat lewat form register?"*
+
+  **Konteks & Tujuan**: Digunakan untuk membuat akun pemilik portofolio dengan `python manage.py createsuperuser`, yang diperlukan untuk menguji hak akses create dan delete serta untuk mengakses Django Admin.
+
+3. **Menentukan akun mana yang menjadi Editor**
+  >  *"Gimana cara kita memilih akun yang Editor atau bukan? Kan saat register cuma masukin username dan password, nggak ada yang menentukan Editor atau bukan."*
+
+  **Konteks & Tujuan**: Ditanyakan saat merancang peran Editor. Kesimpulannya, peran tidak boleh dipilih sendiri oleh pengguna saat registrasi. Peran ditetapkan oleh superuser melalui grup Editor di Django Admin, lalu diperiksa di view dan template.
+
+**Keterbatasan AI dan Pemahaman Saya**
+AI tidak bisa melihat kode proyek saya, sehingga jawabannya sering berupa contoh umum yang harus saya sesuaikan sendiri dengan struktur proyek, misalnya tipe ID model (UUID) dan nama parameter di urls.py. Saya juga perlu teliti saat menyalin pola dari satu model ke model lain, misalnya `related_name` yang harus dibedakan. Selain itu, saya menyadari bahwa menyembunyikan tombol di template tidak cukup untuk mengamankan aplikasi, sehingga pengecekan hak akses di sisi server (`@login_required`, `PermissionDenied`, dan pengecekan grup) tetap harus ada. Saya juga masih perlu memahami lebih dalam perbedaan pemeriksaan grup dengan pemeriksaan permission per model, karena saya baru memakai pemeriksaan grup yang paling sederhana.

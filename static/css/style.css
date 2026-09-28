@@ -21,7 +21,9 @@ body {
     line-height: 1.6;
 }
 
-h1, h2, .brand {
+h1,
+h2,
+.brand {
     font-family: "Space Grotesk", -apple-system, sans-serif;
 }
 
@@ -136,7 +138,6 @@ h4 {
 }
 
 .action-buttons {
-    display: flex;
     gap: 0.5rem;
     align-items: center;
 }
@@ -432,7 +433,8 @@ h4 {
     transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.exp-text, .exp-img {
+.exp-text,
+.exp-img {
     flex: 1;
 }
 
@@ -568,8 +570,31 @@ h4 {
     flex-grow: 1;
 }
 
+.star-form {
+    display: inline;
+}
+
+.button-star {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--ink);
+}
+
+.button-star.is-starred {
+    background: var(--accent);
+}
+
+.star-count {
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 0.8rem;
+}
+
 /* MOBILE */
 @media (max-width: 600px) {
+
     /* MAIN */
     .hero-grid {
         grid-template-columns: 1fr;
@@ -627,12 +652,14 @@ h4 {
     }
 
     /* EXPERIENCE */
-    .exp-row, .exp-row.reverse {
+    .exp-row,
+    .exp-row.reverse {
         flex-direction: column;
         gap: 1.5rem;
     }
 
-    .exp-text, .exp-row.reverse .exp-text {
+    .exp-text,
+    .exp-row.reverse .exp-text {
         border-left: none;
         border-right: none;
         border-bottom: 1px solid var(--line);

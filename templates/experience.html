@@ -11,51 +11,57 @@
             <p class="section-kicker">My journey so far</p>
             <div class="section-header">
                 <h1>Experiences</h1>
+                {% if user.is_superuser %}
                 <a href="{% url 'main:create_experience' %}" class="button action-add-button">
-                    <span aria-hidden="true">+</span> Tambah Experience
+                    <span aria-hidden="true">+</span>
+                    Tambah Experience
                 </a>
+                {% endif %}
+
             </div>
 
             <form method="get" action="{% url 'main:show_experience' %}" class="search-bar">
-                <input type="search"
-                       name="title"
-                       value="{{ title_query }}"
-                       placeholder="Cari berdasarkan nama experience"
-                       class="search-input"
-                       aria-label="Cari berdasarkan nama experience">
+                <input type="search" name="title" value="{{ title_query }}"
+                    placeholder="Cari berdasarkan nama experience" class="search-input"
+                    aria-label="Cari berdasarkan nama experience">
                 <button type="submit" class="button">Cari</button>
             </form>
 
             <div class="experience-list">
                 {% for experience in experience_list %}
-                    <article class="exp-row {% cycle '' 'reverse' %}">
-                        <div class="exp-text">
-                            <span class="hero-kicker">{{ experience.get_category_display }}</span>
-                            <h3>{{ experience.title }}</h3>
-                            
-                            {% if experience.is_ongoing %}
-                                <h4>Ongoing</h4>
-                            {% else %}
-                                <h4>Completed</h4>
-                            {% endif %}
-                            <p>{{ experience.description }}</p>
+                <article class="exp-row {% cycle '' 'reverse' %}">
+                    <div class="exp-text">
+                        <span class="hero-kicker">{{ experience.get_category_display }}</span>
+                        <h3>{{ experience.title }}</h3>
 
-                            <div class="card-actions">
-                                {% include "components/experience_delete_modal.html" with experience=experience %}
-                            </div>
-                        </div>
-                        <div class="exp-img">
-                            {% if experience.thumbnail %}
-                                <img src="{{ experience.thumbnail }}" alt="Photo of {{ experience.title }}">
+                        {% if experience.is_ongoing %}
+                        <h4>Ongoing</h4>
+                        {% else %}
+                        <h4>Completed</h4>
+                        {% endif %}
+                        <p>{{ experience.description }}</p>
+
+                        <div class="card-actions">
+                            {% if user.is_authenticated %}
+                            {% include "components/experience_star.html" with expereince=experience %}
                             {% endif %}
+                            {% if user.is_superuser or is_editor %}
+                            {% include "components/experience_delete_modal.html" with experience=experience %}
+                        {% endif %}
                         </div>
-                    </article>
+                    </div>
+                    <div class="exp-img">
+                        {% if experience.thumbnail %}
+                        <img src="{{ experience.thumbnail }}" alt="Photo of {{ experience.title }}">
+                        {% endif %}
+                    </div>
+                </article>
                 {% empty %}
-                    {% if title_query %}
-                        <p class="empty-state">Tidak ada experience dengan judul tersebut.</p>
-                    {% else %}
-                        <p class="empty-state">No experience has been added yet.</p>
-                    {% endif %}
+                {% if title_query %}
+                <p class="empty-state">Tidak ada experience dengan judul tersebut.</p>
+                {% else %}
+                <p class="empty-state">No experience has been added yet.</p>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>

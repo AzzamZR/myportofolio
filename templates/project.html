@@ -143,39 +143,39 @@
                 `;
                 
                 deleteModalHtml = `
-<div id="delete-prj-${projectId}"
-     class="modal-dialog"
-     popover="auto"
-     role="dialog"
-     aria-modal="true"
-     aria-labelledby="delete-prj-title-${projectId}">
-    <button type="button"
-            class="modal-backdrop"
-            popovertarget="delete-prj-${projectId}"
-            popovertargetaction="hide"
-            aria-label="Tutup konfirmasi hapus"></button>
-    <div class="modal-content">
-        <button type="button"
-                class="modal-close"
-                popovertarget="delete-prj-${projectId}"
-                popovertargetaction="hide"
-                aria-label="Tutup konfirmasi hapus">&times;</button>
-        <h2 id="delete-prj-title-${projectId}">Hapus Proyek?</h2>
-        <p>Apakah Anda yakin ingin menghapus <strong>${escapeHtml(project.title)}</strong>?</p>
-        
-        <form method="post" action="${deleteUrl}" class="modal-delete-form">
-            {% csrf_token %}
-            <div class="modal-actions">
-                <button type="button"
-                        class="button button-secondary"
-                        popovertarget="delete-prj-${projectId}"
-                        popovertargetaction="hide">Batal</button>
-                <button type="submit" class="button button-danger">Ya, Hapus</button>
-            </div>
-        </form>
-    </div>
-</div>
-`;
+                <div id="delete-prj-${projectId}"
+                    class="modal-dialog"
+                    popover="auto"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="delete-prj-title-${projectId}">
+                    <button type="button"
+                            class="modal-backdrop"
+                            popovertarget="delete-prj-${projectId}"
+                            popovertargetaction="hide"
+                            aria-label="Tutup konfirmasi hapus"></button>
+                    <div class="modal-content">
+                        <button type="button"
+                                class="modal-close"
+                                popovertarget="delete-prj-${projectId}"
+                                popovertargetaction="hide"
+                                aria-label="Tutup konfirmasi hapus">&times;</button>
+                        <h2 id="delete-prj-title-${projectId}">Hapus Proyek?</h2>
+                        <p>Apakah Anda yakin ingin menghapus <strong>${escapeHtml(project.title)}</strong>?</p>
+                        
+                        <form method="post" action="${deleteUrl}" class="modal-delete-form">
+                            {% csrf_token %}
+                            <div class="modal-actions">
+                                <button type="button"
+                                        class="button button-secondary"
+                                        popovertarget="delete-prj-${projectId}"
+                                        popovertargetaction="hide">Batal</button>
+                                <button type="submit" class="button button-danger">Ya, Hapus</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                `;
             }
             
             actionButtonsHtml = `

@@ -11,7 +11,7 @@ Website portofolio pribadi milik **Azzam Zawawi Al Rasyid**, dikembangkan menggu
 
 ## Deskripsi Proyek
 
-Website ini merupakan portofolio pribadi berbasis Django yang menerapkan pola arsitektur **Model-View-Template (MVT)**. Proyek ini dibangun secara bertahap sepanjang semester, dimulai dari halaman statis HTML5/CSS3, kemudian dilanjutkan dengan integrasi database melalui Django ORM, kemudian penambahan fitur Form serta Data Delivery (JSON), dan terakhir penerapan Authentication, Session, Cookies, serta Authorization berbasis peran (pengunjung, pengguna biasa, Editor, dan pemilik portofolio).
+Website ini merupakan portofolio pribadi berbasis Django yang menerapkan pola arsitektur **Model-View-Template (MVT)**. Proyek ini dibangun secara bertahap sepanjang semester, dimulai dari halaman statis HTML5/CSS3, kemudian dilanjutkan dengan integrasi database melalui Django ORM, penambahan fitur Form serta Data Delivery (JSON), penerapan Authentication, Session, Cookies, serta Authorization berbasis peran (pengunjung, pengguna biasa, Editor, dan pemilik portofolio). Pada tahap terbaru (Tutorial 05), interaktivitas halaman ditingkatkan dengan menerapkan **Vanilla JavaScript, AJAX, dan Fetch API** sehingga data dirender secara dinamis di sisi klien tanpa perlu memuat ulang (*reload*) halaman penuh.
 
 Tampilan portofolio mengusung desain *clean-modern* dengan palet warna biru muda yang lembut, tipografi **Space Grotesk** untuk judul, dan sistem *layout* responsif menggunakan CSS Grid dan Flexbox.
 
@@ -21,14 +21,14 @@ Tampilan portofolio mengusung desain *clean-modern* dengan palet warna biru muda
 
 - **Profile & Hero Section:** Menampilkan identitas personal (nama, NPM, program studi), foto, bio singkat, serta tautan GitHub, LinkedIn, dan Email.
 - **Dynamic Experience Page (`/experience/`):**
-  - Merender data riwayat kegiatan dan kepanitiaan dari database.
-  - Menerapkan tata letak *zigzag* (selang-seling) otomatis menggunakan tag Django `{% cycle '' 'reverse' %}` yang dipadukan dengan CSS `flex-direction: row-reverse`.
-  - Dilengkapi fitur **pencarian** berdasarkan judul, tombol **Tambah**, **Edit**, dan **Hapus** dengan modal konfirmasi.
-  - Menampilkan status **Ongoing** / **Completed** secara otomatis berdasarkan `ended_at`.
+  - Merender data riwayat kegiatan dan kepanitiaan dari database secara asinkron menggunakan AJAX.
+  - Menerapkan tata letak *zigzag* (selang-seling) otomatis menggunakan CSS *conditional styling* yang dirender via JavaScript.
+  - Dilengkapi fitur **pencarian real-time (debouncing)**, serta tombol **Tambah**, **Edit**, dan **Hapus** dengan modal interaktif dan notifikasi *toast*.
+  - Menampilkan status **Ongoing** / **Completed** secara otomatis dengan logika khusus membandingkan nilai `ended_at` dengan waktu saat ini (`timezone.now()`).
 - **Dynamic Project Page (`/project/`):**
-  - Menampilkan daftar proyek dalam bentuk **grid kartu** dengan efek *hover* (lift + zoom gambar).
+  - Menampilkan daftar proyek dalam bentuk **grid kartu** dengan efek *hover* (lift + zoom gambar) yang dirender secara asinkron via AJAX.
   - Setiap kartu memiliki gambar *thumbnail*, kategori, judul, deskripsi, serta tombol Edit dan Hapus.
-  - Dilengkapi fitur pencarian, form tambah, dan modal konfirmasi hapus.
+  - Dilengkapi fitur pencarian *real-time* (debouncing), penambahan data berbasis AJAX lewat form modal *popover*, serta modal konfirmasi hapus.
 - **Autentikasi & Hak Akses Berbasis Peran (Tutorial 04 & Individual Assignment 4):**
   - Register, Login, dan Logout menggunakan sistem autentikasi bawaan Django. Status login (username dan tombol Login/Logout) tampil di navbar.
   - Cookie `last_login` ditampilkan di halaman profil dan dihapus saat logout.
@@ -38,6 +38,9 @@ Tampilan portofolio mengusung desain *clean-modern* dengan palet warna biru muda
   - Proteksi PIN dari Individual Assignment 3 digantikan oleh sistem ini.
 - **Fitur Star:**
   - Pengguna yang login dapat memberi atau membatalkan star pada Experience dan Project (maksimal satu star per pengguna), lengkap dengan jumlah total star dan status star pengguna saat ini.
+- **Keamanan Aplikasi Lanjutan:**
+  - Pencegahan pemalsuan permintaan melalui integrasi **CSRF Token** di setiap pengiriman data POST antarmuka AJAX.
+  - Mencegah bahaya **Cross-Site Scripting (XSS)** lewat *escaping* manual di sisi klien (`escapeHtml`) dan sanitasi masukan form di *backend* Django (`strip_tags`).
 - **Responsive Design:**
   - Layout otomatis menyesuaikan pada layar kecil (mobile) melalui media query `@media (max-width: 600px)`.
 - **Skeleton Template (`base.html`):**
@@ -89,6 +92,14 @@ Karena fitur autentikasi, pembatasan hak akses superuser, dan star sudah saya te
 
 Peran Editor dibuat dengan Django Group `Editor` melalui Django Admin (`/admin`), lalu akun tertentu dimasukkan ke grup tersebut oleh superuser. Alasannya, form registrasi bawaan hanya meminta username dan password sehingga tidak ada cara bagi pengguna untuk memilih perannya sendiri, dan memang tidak seharusnya begitu. Di view, keanggotaan grup diperiksa dengan `request.user.groups.filter(name="Editor").exists()`: view edit menerima superuser dan Editor, sedangkan view create dan delete tetap hanya untuk superuser. Pengunjung tanpa login diarahkan ke halaman login oleh `@login_required`, sedangkan pengguna yang sudah login tetapi tidak berhak menerima `PermissionDenied` (403). Status Editor dikirim dari view ke template sebagai variabel `is_editor`, sehingga tombol Edit ditampilkan bagi superuser dan Editor, sedangkan tombol Tambah dan Hapus hanya bagi superuser. Tombol star hanya ditampilkan bagi pengguna yang sudah login. Pengecekan di server tetap dipertahankan karena menyembunyikan tombol tidak mencegah orang membuka URL-nya langsung.
 Karena hak akses sekarang ditangani oleh sistem autentikasi Django, saya juga menghapus proteksi PIN (`secret_passcode` dan `clean_secret_passcode()`) dari `forms.py` beserta pengecekannya di view.
+
+### Tutorial 05
+
+Pada Tutorial 05, saya mempelajari pendekatan pengambilan dan pengiriman data secara asinkron menggunakan **AJAX** dan **Fetch API** dengan fokus pengerjaan pada halaman **Project**. Saya memodifikasi fitur pencarian agar berjalan *real-time* saat pengguna mengetik, dengan menerapkan teknik **debouncing** (jeda 300ms) untuk mencegah *spam request* ke server. Selain itu, *form* penambahan proyek dipindahkan ke dalam **modal** berbasis `popover`, dan datanya dikirim menggunakan `fetch()` metode POST yang dilindungi oleh Token CSRF. Saya juga menambahkan komponen notifikasi **toast** interaktif untuk memberikan *feedback* visual (sukses/gagal) tanpa perlu me-*reload* halaman. Terakhir, untuk mengamankan situs dari potensi serangan **XSS (Cross-Site Scripting)** akibat memanipulasi `innerHTML`, saya menerapkan sanitasi HTML secara mandiri melalui fungsi `escapeHtml()` di sisi *client* dan `strip_tags()` di sisi *server*.
+
+### Individual Assignment 5
+
+Pada Individual Assignment 5, saya mengadaptasi dan menerapkan seluruh logika AJAX yang telah dibangun di Tutorial 05 secara mandiri ke halaman **Experience**. Proses ini mencakup perombakan *template* agar hanya memuat kerangka dasar pada awalnya, serta menambahkan implementasi status *loading*, *empty*, dan *error* pada antarmuka. Setelah itu, saya merakit kembali data portofolio dari *endpoint* JSON menjadi elemen HTML secara dinamis menggunakan JavaScript. Tantangan utama pada tugas ini adalah memastikan setiap fungsi JavaScript, penamaan variabel, *field* model (seperti penyesuaian properti `is_ongoing`), dan ID elemen DOM telah disesuaikan dengan akurat agar seluruh fitur asinkron di halaman Experience dapat beroperasi dengan lancar tanpa mengalami konflik dengan halaman Project.
 
 ---
 
@@ -146,6 +157,17 @@ JSON lebih ringkas karena tidak perlu menulis *closing tag* di setiap elemen, se
 Ketika ada request ke endpoint `/api/experience/`, view `get_experience_json` mengambil data dari database (`Experience.objects.all()`). Data ini masih berbentuk objek Python/Django, bukan teks. Kemudian `serializers.serialize("json", ...)` dipanggil untuk mengubah objek tersebut menjadi teks berformat JSON. Teks JSON tersebut dibungkus menggunakan `HttpResponse` dengan `content_type="application/json"`, lalu dikirim sebagai response.
 
 Serialization perlu dilakukan karena objek Python (seperti *instance* model Django) hanya "dikenali" oleh Python dan tidak bisa langsung dikirim lewat internet. Data yang dikirim lewat HTTP harus berbentuk teks, sehingga objek tersebut perlu "diterjemahkan" dulu menjadi teks JSON yang formatnya universal.
+
+### Tugas 5
+
+**1. Jelaskan apa itu debouncing dan mengapa teknik ini penting diterapkan pada fitur pencarian yang menggunakan AJAX!**
+Debouncing adalah teknik pemrograman yang menunda eksekusi sebuah fungsi sampai jeda waktu tertentu berlalu sejak pemanggilan terakhirnya. Pada fitur pencarian AJAX, debouncing sangat penting karena mencegah browser mengirimkan HTTP request ke server untuk setiap huruf yang diketik. Tanpa debouncing, mengetik kata "Django" akan memicu 6 request berturut-turut, yang membebani kinerja server dan menghabiskan *bandwidth*. Dengan debouncing (misalnya jeda 300ms), request hanya dikirim setelah pengguna berhenti mengetik sejenak, membuat pencarian jauh lebih efisien dan responsif.
+
+**2. Jelaskan fungsi dari penggunaan await ketika kita menggunakan fetch()! Apa yang akan terjadi jika kita tidak menggunakan await?**
+Fungsi `await` digunakan di dalam `async function` untuk menjeda eksekusi baris kode tersebut sampai sebuah `Promise` (seperti yang dikembalikan oleh `fetch()`) selesai diproses dan mengembalikan hasil. Jika kita tidak menggunakan `await`, JavaScript akan langsung melanjutkan eksekusi ke baris berikutnya secara asinkron sebelum respons dari server diterima. Akibatnya, variabel penampung tidak akan berisi data balasan (seperti objek Response atau JSON), melainkan hanya berisi objek `Promise` yang masih *pending*, yang akan menyebabkan *error* saat kita mencoba membaca datanya.
+
+**3. Jelaskan apa itu serangan XSS (Cross-Site Scripting) dan mengapa data yang ditampilkan melalui AJAX/JavaScript lebih rentan terhadap serangan ini daripada data yang ditampilkan langsung melalui template Django!**
+XSS (Cross-Site Scripting) adalah kerentanan keamanan web di mana penyerang menyisipkan *script* berbahaya (seperti JavaScript) ke dalam data yang akan ditampilkan kepada pengguna lain. Data yang ditampilkan via AJAX lebih rentan karena JavaScript di sisi klien (terutama saat menggunakan `innerHTML`) akan langsung mengeksekusi tag HTML atau *script* apa pun yang ada di dalam *string* data tersebut. Sebaliknya, saat me-render data langsung lewat template Django, Django secara otomatis melakukan *auto-escaping* pada setiap variabel, mengubah karakter berbahaya seperti `<` dan `>` menjadi entitas teks aman (`&lt;` dan `&gt;`), sehingga mencegah *script* dieksekusi oleh browser.
 
 ---
 
@@ -400,3 +422,48 @@ Pada tahap ini, saya menggunakan Gemini untuk memahami cara menerapkan pola star
 
 **Keterbatasan AI dan Pemahaman Saya**
 AI tidak bisa melihat kode proyek saya, sehingga jawabannya sering berupa contoh umum yang harus saya sesuaikan sendiri dengan struktur proyek, misalnya tipe ID model (UUID) dan nama parameter di urls.py. Saya juga perlu teliti saat menyalin pola dari satu model ke model lain, misalnya `related_name` yang harus dibedakan. Selain itu, saya menyadari bahwa menyembunyikan tombol di template tidak cukup untuk mengamankan aplikasi, sehingga pengecekan hak akses di sisi server (`@login_required`, `PermissionDenied`, dan pengecekan grup) tetap harus ada. Saya juga masih perlu memahami lebih dalam perbedaan pemeriksaan grup dengan pemeriksaan permission per model, karena saya baru memakai pemeriksaan grup yang paling sederhana.
+
+### Tutorial 05 & Individual Assignment 5
+
+Pada tahap ini, saya menggunakan AI (Gemini) untuk mendukung transisi proyek portofolio saya dari *rendering* sisi server menuju pendekatan *client-side* asinkron menggunakan AJAX dan Fetch API.
+
+**Bagian yang Dibantu AI:**
+- Membantu menelusuri penyebab *Internal Server Error (500)* saat mengambil data JSON akibat ketidaksesuaian *field* model pada respons API.
+- Membantu merevisi logika penanggalan pada properti `is_ongoing` di model `Experience` agar membandingkan waktu secara aktual menggunakan `timezone.now()`.
+- Memberikan penjelasan mengenai urgensi teknik *debouncing* untuk optimasi *request* asinkron.
+- Memberikan gambaran alur kerja (*workflow*) yang sistematis tentang cara mengadaptasi mekanisme JavaScript/AJAX dari bagian Project agar dapat diimplementasikan pada halaman Experience.
+
+**Bagian yang Saya Kerjakan dan Putuskan Sendiri:**
+- Menerapkan fungsi AJAX dan `fetch()` pada halaman portofolio secara mandiri mengikuti instruksi tutorial, mulai dari perakitan modal, notifikasi *toast*, hingga inisialisasi pencarian dinamis.
+- Menganalisis *traceback error* dari *Network DevTools* secara mandiri untuk memberikan konteks yang tepat kepada AI.
+- Secara aktif mengevaluasi hasil akhir fitur (seperti masalah validasi tanggal) dan secara proaktif mengarahkan AI untuk memperbaiki logika yang tidak sesuai dengan nalar aplikasi kehidupan nyata.
+
+#### AI Chat / Prompting Log
+
+1. **Mendiagnosis Kegagalan Endpoint AJAX (*Internal Server Error*)**
+   > *"Saat saya melakukan fetch() ke endpoint API JSON portofolio, saya mendapatkan pesan Internal Server Error (500) dan traceback menunjukkan `AttributeError`. Bagaimana cara menelusuri ketidaksesuaian atribut ini saat merakit dictionary JSON secara manual di views.py?"*
+   
+   **Konteks & Tujuan:** Digunakan untuk melacak penyebab *crash* pada fungsi serialisasi, yang dipicu oleh sisa atribut peninggalan entitas lain yang tidak dikenali oleh model target.
+
+2. **Memperbaiki Logika Bisnis (*Business Logic*) Penentuan Status**
+   > *"Status data pengalaman saya selalu dirender sebagai 'Completed' oleh AJAX padahal tanggal selesainya masih di masa depan. Bagaimana cara memperbarui logika properti di model Django agar membandingkan parameter tanggal dengan waktu aktual saat ini?"*
+   
+   **Konteks & Tujuan:** Ditanyakan ketika saya menyadari bahwa evaluasi bawaan hanya memeriksa terisi atau tidaknya sebuah kolom. Permintaan ini ditujukan agar AI memberikan solusi komparasi waktu menggunakan pustaka bawaan Django.
+
+3. **Memahami Urgensi *Debouncing* pada Pencarian**
+   > *"Mengapa kita harus menerapkan teknik debouncing (seperti penggunaan `setTimeout` dan `clearTimeout`) pada kolom pencarian yang menggunakan AJAX? Apa dampaknya terhadap kinerja aplikasi web?"*
+   
+   **Konteks & Tujuan:** Digunakan untuk memperdalam pemahaman teoretis mengenai optimasi kinerja *client-side* dan langkah pencegahan *request* berlebih (*spamming*) ke server.
+
+4. **Mengadaptasi Implementasi AJAX pada Halaman Experience**
+   > *"Di tutorial, seluruh logika AJAX (seperti form modal, *debouncing*, dan manipulasi DOM) dicontohkan pada bagian Project. Bagaimana alur berpikir (*workflow*) yang tepat untuk mengadaptasi seluruh mekanisme asinkron tersebut agar dapat diterapkan dengan lancar ke halaman Experience?"*
+   
+   **Konteks & Tujuan:** Ditanyakan sebagai langkah persiapan sebelum mengimplementasikan instruksi tugas mandiri. Tujuannya adalah untuk memahami gambaran besar dan penyesuaian kode yang diperlukan (seperti perbedaan id DOM, penamaan variabel, dan *field* model) saat menduplikasi pendekatan *client-side* tersebut ke entitas portofolio yang berbeda.
+
+#### Keterbatasan AI dan Pemahaman Saya
+
+Dalam proses pengerjaan, AI cenderung memberikan solusi yang bersifat teoretis atau menebak-nebak jika tidak diberikan konteks kode yang mutlak. Misalnya, saat menangani kegagalan pengambilan data AJAX, AI awalnya mencurigai kesalahan sederhana pada rute URL. Saya harus melakukan pengecekan di tab *Network* pada *DevTools* secara mandiri, lalu menyertakan *traceback error* yang spesifik (`AttributeError`) agar AI dapat menemukan akar permasalahannya.
+
+Selain itu, AI tidak memiliki pemahaman intrinsik mengenai kelogisan fungsi waktu (*common sense*). Pada kasus penentuan status penyelesaian (*Ongoing/Completed*), AI awalnya menganggap algoritma sudah valid karena variabel *datetime* sudah terisi di form, tanpa menyadari bahwa secara nalar, tanggal di masa depan belum dapat dianggap selesai. Hal ini menuntut saya untuk proaktif membantah hasil yang diberikan dan mengarahkan AI untuk menggunakan modul komparasi waktu nyata (`timezone.now()`). Pengalaman ini semakin menyadarkan saya bahwa kemampuan berpikir kritis dan validasi fungsional tetap menjadi tanggung jawab utama pengembang perangkat lunak, sementara AI lebih ideal diposisikan sebagai asisten penyusun sintaksis.
+
+

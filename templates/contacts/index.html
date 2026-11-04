@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block meta %}
+<title>Contacts</title>
+<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.11/dist/htmx.min.js"></script>
+{% endblock %}
+{% block content %}
+<main class="container" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <h1>Add Contact</h1>
+    <form hx-post="{% url 'contacts:contact_add' %}"
+          hx-target="#contact-rows"
+          hx-swap="beforeend"
+          hx-on::after-request="if (event.detail.successful) { this.reset(); document.getElementById('contact-empty')?.remove(); }">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="Name" maxlength="100" required aria-label="Name">
+        <input type="email" name="email" placeholder="Email" required aria-label="Email">
+        <input type="tel" name="phone" placeholder="Phone" maxlength="30" aria-label="Phone">
+        <button type="submit">Add</button>
+    </form>
+    <div id="feedback" role="status"></div>
+    <h1>Contact List</h1>
+    <input type="search" name="q" placeholder="Search contacts..." aria-label="Search contacts"
+           hx-get="{% url 'contacts:contact_search' %}"
+           hx-trigger="keyup changed delay:300ms, search"
+           hx-target="#contact-rows"
+           hx-indicator="#search-indicator">
+    <span id="search-indicator" class="htmx-indicator">Searching...</span>
+    <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th></th></tr></thead>
+        <tbody id="contact-rows">{% include 'contacts/_contact_rows.html' %}</tbody>
+    </table>
+</main>
+{% endblock %}

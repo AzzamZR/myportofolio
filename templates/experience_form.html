@@ -9,7 +9,8 @@
     <section class="section-container">
         <div class="container">
             <h1>{% if is_edit %}Edit Experience{% else %}Add Experience{% endif %}</h1>
-            <form method="post" class="entry-form">
+            <form id="experience-entry-form" method="post" class="entry-form"
+                  {% if is_edit %}action="{% url 'api:experience-detail' experience.pk %}"{% endif %}>
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="form-group">
@@ -28,4 +29,54 @@
         </div>
     </section>
 </main>
+{% if is_edit %}
+<script>
+const editExperienceForm = document.getElementById('experience-entry-form');
+
+function getCookie(name) {
+    const prefix = `${name}=`;
+    const cookie = document.cookie.split(';').map(value => value.trim())
+        .find(value => value.startsWith(prefix));
+    return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : null;
+}
+
+function apiErrorMessage(data, status) {
+    const messages = Object.values(data || {}).flat().filter(value => typeof value === 'string');
+    return messages.join(' ') || `Request failed (HTTP ${status}).`;
+}
+
+editExperienceForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const button = editExperienceForm.querySelector('button[type="submit"]');
+    if (button.disabled) return;
+    button.disabled = true;
+    try {
+        const fields = new FormData(editExperienceForm);
+        const payload = Object.fromEntries(
+            ['title', 'description', 'category', 'thumbnail', 'ended_at']
+                .map(name => [name, fields.get(name)]),
+        );
+        if (!payload.ended_at) payload.ended_at = null;
+        const response = await fetch(editExperienceForm.action, {
+            method: 'PATCH',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(apiErrorMessage(data, response.status));
+        editExperienceForm.elements.title.value = data.title;
+        editExperienceForm.elements.description.value = data.description;
+        showToast('Berhasil', 'Experience berhasil diperbarui.', 'success');
+    } catch (error) {
+        showToast('Gagal memperbarui experience', error.message, 'error');
+    } finally {
+        button.disabled = false;
+    }
+});
+</script>
+{% endif %}
 {% endblock content %}

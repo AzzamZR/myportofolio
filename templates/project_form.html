@@ -9,7 +9,8 @@
     <section class="section-container">
         <div class="container">
             <h1>{% if is_edit %}Edit Project{% else %}Add Project{% endif %}</h1>
-            <form method="post" class="entry-form">
+            <form id="project-entry-form" method="post" class="entry-form"
+                  {% if is_edit %}action="{% url 'api:project-detail' project.pk %}"{% endif %}>
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="form-group">
@@ -28,4 +29,53 @@
         </div>
     </section>
 </main>
+{% if is_edit %}
+<script>
+const editProjectForm = document.getElementById('project-entry-form');
+
+function getCookie(name) {
+    const prefix = `${name}=`;
+    const cookie = document.cookie.split(';').map(value => value.trim())
+        .find(value => value.startsWith(prefix));
+    return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : null;
+}
+
+function apiErrorMessage(data, status) {
+    const messages = Object.values(data || {}).flat().filter(value => typeof value === 'string');
+    return messages.join(' ') || `Request failed (HTTP ${status}).`;
+}
+
+editProjectForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const button = editProjectForm.querySelector('button[type="submit"]');
+    if (button.disabled) return;
+    button.disabled = true;
+    try {
+        const fields = new FormData(editProjectForm);
+        const payload = Object.fromEntries(
+            ['title', 'description', 'category', 'thumbnail']
+                .map(name => [name, fields.get(name)]),
+        );
+        const response = await fetch(editProjectForm.action, {
+            method: 'PATCH',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(apiErrorMessage(data, response.status));
+        editProjectForm.elements.title.value = data.title;
+        editProjectForm.elements.description.value = data.description;
+        showToast('Berhasil', 'Project berhasil diperbarui.', 'success');
+    } catch (error) {
+        showToast('Gagal memperbarui project', error.message, 'error');
+    } finally {
+        button.disabled = false;
+    }
+});
+</script>
+{% endif %}
 {% endblock content %}

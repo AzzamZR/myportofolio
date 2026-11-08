@@ -121,6 +121,7 @@ def get_experience_json(request):
 
     return JsonResponse(data, safe=False)
 
+@require_POST
 def create_experience_ajax(request):
     if not request.user.is_superuser:
         return JsonResponse(

@@ -21,6 +21,7 @@
             </div>
 
             <form id="experience-search-form" class="search-bar">
+                <div class="experience-search-fields">
                 <input type="search" 
                     id="search-input"
                     name="title" 
@@ -28,6 +29,14 @@
                     placeholder="Cari berdasarkan nama experience" 
                     class="search-input"
                     aria-label="Cari berdasarkan nama experience">
+                <select id="category-filter" name="category" class="category-filter"
+                        aria-label="Filter kategori experience">
+                    <option value="">Semua kategori</option>
+                    {% for value, label in experience_categories %}
+                    <option value="{{ value }}"{% if category_query == value %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                </div>
                 <button type="submit" class="button">Cari</button>
             </form>
 
@@ -71,6 +80,7 @@ const emptyState = document.getElementById('empty');
 const listContainer = document.getElementById('list');
 const searchForm = document.getElementById('experience-search-form');
 const searchInput = document.getElementById('search-input');
+const categoryFilter = document.getElementById('category-filter');
 const experienceForm = document.getElementById('experience-form');
 let experiencesAbortController;
 let searchDebounceTimer;
@@ -125,6 +135,7 @@ async function fetchExperiences(searchQuery = '') {
         displayPageSection({showLoading: true});
         const url = new URL(BASE_EXPERIENCES_ENDPOINT, window.location.origin);
         if (searchQuery) url.searchParams.set('title', searchQuery);
+        if (categoryFilter.value) url.searchParams.set('category', categoryFilter.value);
         const response = await fetch(url, {
             headers: {Accept: 'application/json'}, signal: experiencesAbortController.signal,
         });
@@ -188,6 +199,10 @@ listContainer.addEventListener('click', async function(event) {
 searchInput.addEventListener('input', function() {
     clearTimeout(searchDebounceTimer);
     searchDebounceTimer = setTimeout(() => fetchExperiences(searchInput.value.trim()), 300);
+});
+categoryFilter.addEventListener('change', function() {
+    clearTimeout(searchDebounceTimer);
+    fetchExperiences(searchInput.value.trim());
 });
 searchForm.addEventListener('submit', function(event) {
     event.preventDefault(); clearTimeout(searchDebounceTimer); fetchExperiences(searchInput.value.trim());

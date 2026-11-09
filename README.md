@@ -11,7 +11,7 @@ Website portofolio pribadi milik **Azzam Zawawi Al Rasyid**, dikembangkan menggu
 
 ## Deskripsi Proyek
 
-Website ini merupakan portofolio pribadi berbasis Django yang menerapkan pola arsitektur **Model-View-Template (MVT)**. Proyek ini dibangun secara bertahap sepanjang semester, dimulai dari halaman statis HTML5/CSS3, kemudian dilanjutkan dengan integrasi database melalui Django ORM, penambahan fitur Form serta Data Delivery (JSON), penerapan Authentication, Session, Cookies, serta Authorization berbasis peran (pengunjung, pengguna biasa, Editor, dan pemilik portofolio). Pada tahap terbaru (Tutorial 05), interaktivitas halaman ditingkatkan dengan menerapkan **Vanilla JavaScript, AJAX, dan Fetch API** sehingga data dirender secara dinamis di sisi klien tanpa perlu memuat ulang (*reload*) halaman penuh.
+Website ini merupakan portofolio pribadi berbasis Django yang menerapkan pola arsitektur **Model-View-Template (MVT)**. Proyek ini dibangun secara bertahap sepanjang semester, dimulai dari halaman statis HTML5/CSS3, kemudian dilanjutkan dengan integrasi database melalui Django ORM, penambahan fitur Form serta Data Delivery (JSON), penerapan Authentication, Session, Cookies, serta Authorization berbasis peran (pengunjung, pengguna biasa, Editor, dan pemilik portofolio). Pada Tutorial 07 dan Individual Assignment 6, halaman Project dan Experience menggunakan **Django REST Framework (DRF)** untuk representasi data, validasi, serta pemeriksaan hak akses API. Interaksi tetap menggunakan **Vanilla JavaScript, AJAX, dan Fetch API**, termasuk penyimpanan edit melalui PATCH dan filter kategori Experience tanpa memuat ulang (*reload*) halaman.
 
 Tampilan portofolio mengusung desain *clean-modern* dengan palet warna biru muda yang lembut, tipografi **Space Grotesk** untuk judul, dan sistem *layout* responsif menggunakan CSS Grid dan Flexbox.
 
@@ -23,24 +23,24 @@ Tampilan portofolio mengusung desain *clean-modern* dengan palet warna biru muda
 - **Dynamic Experience Page (`/experience/`):**
   - Merender data riwayat kegiatan dan kepanitiaan dari database secara asinkron menggunakan AJAX.
   - Menerapkan tata letak *zigzag* (selang-seling) otomatis menggunakan CSS *conditional styling* yang dirender via JavaScript.
-  - Dilengkapi fitur **pencarian real-time (debouncing)**, serta tombol **Tambah**, **Edit**, dan **Hapus** dengan modal interaktif dan notifikasi *toast*.
-  - Menampilkan status **Ongoing** / **Completed** secara otomatis dengan logika khusus membandingkan nilai `ended_at` dengan waktu saat ini (`timezone.now()`).
+  - Dilengkapi **pencarian real-time (debouncing)** dan **filter kategori** yang dapat digunakan bersamaan, modal tambah, halaman edit melalui PATCH, serta penghapusan dan notifikasi *toast*.
+  - Menampilkan status **Ongoing** ketika `ended_at` kosong dan **Completed** ketika tanggal selesai sudah terisi, sesuai properti model saat ini.
 - **Dynamic Project Page (`/project/`):**
   - Menampilkan daftar proyek dalam bentuk **grid kartu** dengan efek *hover* (lift + zoom gambar) yang dirender secara asinkron via AJAX.
   - Setiap kartu memiliki gambar *thumbnail*, kategori, judul, deskripsi, serta tombol Edit dan Hapus.
-  - Dilengkapi fitur pencarian *real-time* (debouncing), penambahan data berbasis AJAX lewat form modal *popover*, serta modal konfirmasi hapus.
+  - Dilengkapi pencarian *real-time* (debouncing), penambahan data melalui modal *popover*, penyimpanan edit melalui PATCH, dan konfirmasi sebelum penghapusan melalui DELETE.
 - **Autentikasi & Hak Akses Berbasis Peran (Tutorial 04 & Individual Assignment 4):**
   - Register, Login, dan Logout menggunakan sistem autentikasi bawaan Django. Status login (username dan tombol Login/Logout) tampil di navbar.
   - Cookie `last_login` ditampilkan di halaman profil dan dihapus saat logout.
-  - Empat peran dengan pengecekan di sisi server: pengunjung (hanya membaca; diarahkan ke halaman login untuk aksi yang butuh akun), pengguna biasa (membaca dan memberi star), Editor (hak pengguna biasa + dapat mengubah data), dan pemilik portofolio/superuser (dapat membuat, mengubah, dan menghapus data). Aksi yang tidak diizinkan mengembalikan HTTP 403.
-  - Peran Editor ditetapkan lewat Django Group bernama Editor di Django Admin, bukan lewat form registrasi.
+  - Empat peran dengan pengecekan di sisi server: pengunjung (hanya membaca; diarahkan ke halaman login untuk aksi yang butuh akun), pengguna biasa (membaca dan memberi star), Editor (hak pengguna biasa + dapat mengubah Experience), dan pemilik portofolio/superuser (dapat membuat, mengubah, dan menghapus data). Aksi yang tidak diizinkan mengembalikan HTTP 403.
+  - Peran Editor ditetapkan lewat Django Group bernama Editor di Django Admin, bukan lewat form registrasi. Sesuai contoh Tutorial 07, perubahan Project hanya diperbolehkan bagi pemilik, termasuk melalui halaman edit lama.
   - Tombol Tambah, Edit, dan Hapus disembunyikan di template bagi pengguna yang tidak berhak.
   - Proteksi PIN dari Individual Assignment 3 digantikan oleh sistem ini.
 - **Fitur Star:**
   - Pengguna yang login dapat memberi atau membatalkan star pada Experience dan Project (maksimal satu star per pengguna), lengkap dengan jumlah total star dan status star pengguna saat ini.
 - **Keamanan Aplikasi Lanjutan:**
-  - Pencegahan pemalsuan permintaan melalui integrasi **CSRF Token** di setiap pengiriman data POST antarmuka AJAX.
-  - Mencegah bahaya **Cross-Site Scripting (XSS)** lewat *escaping* manual di sisi klien (`escapeHtml`) dan sanitasi masukan form di *backend* Django (`strip_tags`).
+  - Pencegahan pemalsuan permintaan melalui header **X-CSRFToken** pada request POST, PATCH, dan DELETE antarmuka AJAX yang menggunakan session login.
+  - Mencegah bahaya **Cross-Site Scripting (XSS)** lewat *escaping* manual di sisi klien (`escapeHtml`) dan pembersihan tag HTML pada input teks melalui serializer DRF (`strip_tags`).
 - **Responsive Design:**
   - Layout otomatis menyesuaikan pada layar kecil (mobile) melalui media query `@media (max-width: 600px)`.
 - **Skeleton Template (`base.html`):**
@@ -100,6 +100,22 @@ Pada Tutorial 05, saya mempelajari pendekatan pengambilan dan pengiriman data se
 ### Individual Assignment 5
 
 Pada Individual Assignment 5, saya mengadaptasi dan menerapkan seluruh logika AJAX yang telah dibangun di Tutorial 05 secara mandiri ke halaman **Experience**. Proses ini mencakup perombakan *template* agar hanya memuat kerangka dasar pada awalnya, serta menambahkan implementasi status *loading*, *empty*, dan *error* pada antarmuka. Setelah itu, saya merakit kembali data portofolio dari *endpoint* JSON menjadi elemen HTML secara dinamis menggunakan JavaScript. Tantangan utama pada tugas ini adalah memastikan setiap fungsi JavaScript, penamaan variabel, *field* model (seperti penyesuaian properti `is_ongoing`), dan ID elemen DOM telah disesuaikan dengan akurat agar seluruh fitur asinkron di halaman Experience dapat beroperasi dengan lancar tanpa mengalami konflik dengan halaman Project.
+
+---
+
+### Tutorial 07
+
+Pada Tutorial 07, halaman **Project** menggunakan **Django REST Framework** sebagai pengganti endpoint JSON manual. Representasi dan validasi data ditangani oleh `ProjectSerializer`, hak akses perubahan diperiksa oleh `IsPortfolioOwnerOrReadOnly`, dan API view berbasis fungsi ditempatkan pada `main/api_views.py`. Endpoint daftar, detail, dan star berada di bawah `/api/v1/projects/`. Halaman Project menggunakan endpoint tersebut untuk menampilkan, mencari, menambah, menghapus, dan memberi star pada data, dengan session serta perlindungan CSRF dari Django tetap dipakai.
+
+### Individual Assignment 6
+
+Pada Individual Assignment 6, saya menggunakan **Experience** sebagai bagian tugas, dengan mempertahankan model, data, dan relasi `starred_by` yang sudah ada. Audit awal menunjukkan bahwa `ExperienceSerializer`, permission, dan endpoint DRF Experience sudah tersedia. Karena itu, saya berfokus pada pemeriksaan kesesuaian implementasi dengan checklist dan penyelesaian integrasi edit yang masih menggunakan POST ke view lama.
+
+Halaman edit Experience tetap digunakan, tetapi penyimpanannya diubah menjadi `fetch()` dengan PATCH ke API. Data dikirim sebagai JSON dengan header `X-CSRFToken`; respons sukses dan error ditampilkan melalui toast tanpa me-reload halaman edit. Tombol simpan dinonaktifkan selama request berlangsung untuk mencegah pengiriman ganda. View tambah AJAX lama juga diberi `@require_POST` agar hanya menerima method POST.
+
+Saya kemudian memilih menerapkan penyimpanan edit melalui API juga pada **Project**. Hak aksesnya tetap mengikuti Tutorial 07: hanya pemilik yang dapat mengubah Project, sedangkan Experience dapat diubah oleh Editor maupun pemilik. View edit Project lama disesuaikan agar konsisten dengan API.
+
+Sebagai tambahan di luar checklist minimal, saya menambahkan **filter kategori Experience**. Dropdown kategori menyatu di sisi kanan kolom pencarian agar tidak memakan baris tambahan. Pilihan diambil dari `Experience.EXPERIENCE_CHOICES`, lalu dikirim sebagai query parameter `category` ke API. Filter dapat digabung dengan pencarian judul dan tetap digunakan ketika daftar dimuat ulang setelah tambah, hapus, atau star. Fitur ini menggunakan model yang sudah ada tanpa migrasi atau dependency baru. Pengerjaan disimpan bertahap pada branch `feat/tugas-6-drf`.
 
 ---
 
@@ -168,6 +184,36 @@ Fungsi `await` digunakan di dalam `async function` untuk menjeda eksekusi baris 
 
 **3. Jelaskan apa itu serangan XSS (Cross-Site Scripting) dan mengapa data yang ditampilkan melalui AJAX/JavaScript lebih rentan terhadap serangan ini daripada data yang ditampilkan langsung melalui template Django!**
 XSS (Cross-Site Scripting) adalah kerentanan keamanan web di mana penyerang menyisipkan *script* berbahaya (seperti JavaScript) ke dalam data yang akan ditampilkan kepada pengguna lain. Data yang ditampilkan via AJAX lebih rentan karena JavaScript di sisi klien (terutama saat menggunakan `innerHTML`) akan langsung mengeksekusi tag HTML atau *script* apa pun yang ada di dalam *string* data tersebut. Sebaliknya, saat me-render data langsung lewat template Django, Django secara otomatis melakukan *auto-escaping* pada setiap variabel, mengubah karakter berbahaya seperti `<` dan `>` menjadi entitas teks aman (`&lt;` dan `&gt;`), sehingga mencegah *script* dieksekusi oleh browser.
+
+---
+
+### Tugas 6
+
+**1. Jelaskan apa yang dimaksud dengan REST dan mengapa mengembalikan JSON saja belum cukup untuk menyebut sebuah API sebagai RESTful! Jelaskan pula perbedaan PUT dan PATCH beserta contoh kapan masing-masing sebaiknya digunakan!**
+
+REST (*Representational State Transfer*) adalah gaya arsitektur untuk komunikasi antara klien dan server. API disusun berdasarkan resource yang dikenali melalui URL, memakai HTTP method secara konsisten, serta bertukar representasi data. REST juga mencakup prinsip seperti pemisahan klien-server, stateless, dan antarmuka yang seragam. JSON hanya format data, sehingga respons JSON saja belum membuktikan bahwa sebuah API mengikuti prinsip REST.
+
+Contohnya, `/api/v1/experiences/` mewakili kumpulan Experience dan `/api/v1/experiences/<uuid>/` mewakili satu Experience. GET membaca, POST membuat, dan DELETE menghapus. Implementasi proyek mengikuti pola resource dari tutorial, tetapi session yang disimpan di server dan endpoint aksi `/star/` berarti saya tidak menganggapnya sebagai penerapan seluruh prinsip REST secara ketat.
+
+PUT digunakan ketika klien bermaksud mengganti representasi resource, sedangkan PATCH digunakan untuk perubahan sebagian. PUT cocok ketika mengirim seluruh data form Experience, termasuk judul, deskripsi, kategori, thumbnail, dan tanggal selesai. Jika hanya ingin mengganti judul, PATCH dapat mengirim `{"title": "PBP Teaching Assistant"}` tanpa menyertakan field lainnya. Pada view saya, `partial=True` digunakan untuk PATCH agar field yang tidak dikirim tidak diwajibkan dan nilainya tetap dipertahankan. PUT tetap memvalidasi field wajib; field opsional yang tidak dikirim tidak otomatis dikosongkan oleh ModelSerializer. Form edit memakai PATCH untuk memperbarui field yang dikelola form.
+
+**2. Jelaskan peran serializer pada Django REST Framework! Apa keuntungannya dibandingkan merakit dictionary secara manual dengan JsonResponse seperti pada Tutorial 05?**
+
+Serializer mengubah objek model menjadi tipe data sederhana yang kemudian dirender DRF menjadi JSON. Pada arah sebaliknya, serializer memvalidasi input, menghasilkan `validated_data`, dan dapat menyimpan perubahan melalui `.save()`. `ModelSerializer` membantu membentuk field dan validasi berdasarkan model, sementara `JsonResponse` sendiri hanya mengirim respons JSON.
+
+Pada Tutorial 05, saya merakit dictionary dan informasi star secara manual di view. Dengan serializer, daftar field dapat ditulis eksplisit, validasi teks ditempatkan pada `validate_title()` dan `validate_description()`, serta informasi star dihitung melalui `SerializerMethodField` yang read-only. Di proyek ini, `strip_tags()` membersihkan tag HTML dan judul yang kosong setelah dibersihkan ditolak. View menjadi lebih ringkas karena cukup menjalankan `is_valid(raise_exception=True)`, menyimpan data yang valid, dan mengembalikan `Response`. Bentuk respons dan pesan error lebih konsisten, serta field sensitif akun tidak perlu ikut ditampilkan.
+
+**3. Jelaskan perbedaan autentikasi dan otorisasi pada Django REST Framework! Mengapa hak akses harus diperiksa dengan permission class di server, bukan hanya dengan menyembunyikan tombol di template?**
+
+Autentikasi menentukan siapa pengirim request, sedangkan otorisasi menentukan tindakan apa yang boleh dilakukannya. `SessionAuthentication` mengenali pengguna melalui session login Django dan menyediakan identitasnya melalui `request.user`. Pengguna yang sudah login belum tentu berhak membuat atau menghapus data.
+
+Pada Experience, `IsPortfolioOwnerOrEditorOrReadOnly` mengizinkan semua peran membaca, Editor dan pemilik melakukan PUT/PATCH, serta hanya pemilik membuat dan menghapus data. Endpoint star menggunakan `IsAuthenticated`, sehingga pengguna biasa juga dapat memberi star. Tombol disembunyikan untuk membantu antarmuka, tetapi pengguna tetap dapat mengirim request langsung ke URL API melalui alat lain. Permission di server memastikan tindakan yang tidak diizinkan ditolak sebelum perubahan dijalankan, terlepas dari tampilan tombol di browser.
+
+**4. Jelaskan mengapa permintaan yang mengubah data tetap memerlukan token CSRF ketika API memakai SessionAuthentication! Mengapa test yang memakai force_authenticate tidak cukup untuk membuktikan bahwa perlindungan CSRF berjalan?**
+
+Browser dapat mengirim cookie session secara otomatis sesuai aturan cookie. Karena itu, keberadaan session saja belum membuktikan bahwa pengguna memang bermaksud melakukan tindakan tersebut. Serangan CSRF mencoba memanfaatkan session korban untuk mengirim perubahan yang tidak dikehendaki. Saat memakai `SessionAuthentication`, request perubahan dari pengguna yang terautentikasi melalui session tetap diperiksa token CSRF-nya. Script halaman membaca cookie `csrftoken` melalui `getCookie()` dan mengirim nilainya dalam header `X-CSRFToken` saat POST, PATCH, atau DELETE.
+
+`force_authenticate()` memilih pengguna secara langsung untuk memudahkan pengujian permission. Cara tersebut tidak menjalankan alur autentikasi session yang sesungguhnya, sehingga tidak cukup untuk membuktikan pemeriksaan CSRF. Pengujian CSRF perlu memakai `APIClient(enforce_csrf_checks=True)` dan `.login()` untuk membuat session, kemudian mengirim request perubahan tanpa token. Request tersebut seharusnya mendapat 403 dan tidak mengubah database. Request dengan token yang benar dapat digunakan sebagai pembanding. Pola pengujian session dan CSRF ini sudah tersedia pada `main/tests_api.py` proyek.
 
 ---
 
@@ -466,4 +512,60 @@ Dalam proses pengerjaan, AI cenderung memberikan solusi yang bersifat teoretis a
 
 Selain itu, AI tidak memiliki pemahaman intrinsik mengenai kelogisan fungsi waktu (*common sense*). Pada kasus penentuan status penyelesaian (*Ongoing/Completed*), AI awalnya menganggap algoritma sudah valid karena variabel *datetime* sudah terisi di form, tanpa menyadari bahwa secara nalar, tanggal di masa depan belum dapat dianggap selesai. Hal ini menuntut saya untuk proaktif membantah hasil yang diberikan dan mengarahkan AI untuk menggunakan modul komparasi waktu nyata (`timezone.now()`). Pengalaman ini semakin menyadarkan saya bahwa kemampuan berpikir kritis dan validasi fungsional tetap menjadi tanggung jawab utama pengembang perangkat lunak, sementara AI lebih ideal diposisikan sebagai asisten penyusun sintaksis.
 
+**Catatan kesesuaian dengan kode terbaru:** Pembahasan `timezone.now()` di bagian Tugas 5 di atas merupakan catatan pendekatan yang dibahas pada tahap tersebut. Pada versi kode saat ini, properti `Experience.is_ongoing` mengembalikan `ended_at is None`. Karena itu, tanggal selesai yang terisi dianggap Completed, termasuk jika tanggalnya masih di masa depan. Ringkasan Fitur Utama mengikuti perilaku model saat ini.
 
+### Individual Assignment 6 & Pengembangan Filter Kategori
+
+Pada tahap ini, saya menggunakan **ChatGPT** untuk membantu audit kode, integrasi edit melalui API, penambahan filter kategori, dan penyusunan dokumentasi. Saya memberikan dokumen Tutorial 07, Tugas 6, serta konteks proyek agar pembahasan tetap mengikuti materi yang diminta. Strategi prompting yang saya gunakan adalah membagi pengerjaan per tahap, meminta penjelasan sebelum perubahan, dan mempertahankan implementasi yang sudah sesuai.
+
+**Bagian yang Dibantu AI:**
+
+- Membantu memahami pembagian tanggung jawab model, serializer, permission, dan API view, serta mencocokkan alurnya dengan implementasi Experience yang sudah tersedia.
+- Membantu menyusun logika penyimpanan edit melalui PATCH, mulai dari pengambilan nilai form, penyusunan payload JSON, pengiriman CSRF, hingga penanganan respons melalui toast, beserta perubahan kode yang diperlukan.
+- Memberikan penjelasan mengenai perbedaan hak akses Project dan Experience agar pembatasan pada halaman edit tetap konsisten dengan permission API.
+- Membantu menyusun logika penggabungan pencarian judul dan filter kategori melalui query parameter, termasuk mempertahankan kategori aktif saat daftar dimuat ulang setelah operasi AJAX.
+- Memberikan alternatif penataan dropdown dan membantu menyesuaikan implementasinya agar lebih ringkas serta menyatu dengan kolom pencarian.
+
+**Bagian yang Saya Kerjakan dan Putuskan Sendiri:**
+
+- Menentukan urutan pengerjaan dan menjadikan Tutorial 07 serta checklist Tugas 6 sebagai acuan untuk menilai perubahan yang diperlukan.
+- Meminta penjelasan tentang bagian kode yang sudah sesuai dan alasan penyesuaian, terutama perbedaan integrasi edit pada contoh tutorial dan bagian tugas.
+- Memilih untuk mempertahankan halaman edit yang sudah ada dan menerapkan penyimpanan melalui API juga pada Project.
+- Mengevaluasi alternatif tampilan filter dan mengarahkan revisinya: tetap menggunakan dropdown, mengurangi ruang yang dipakai, dan menempatkannya di sisi kanan pencarian.
+- Menentukan penggunaan branch `feat/tugas-6-drf` dan menyimpan perubahan melalui commit bertahap setelah penjelasan perubahan tersedia.
+
+#### AI Chat / Prompting Log
+
+Contoh pertanyaan berikut dirangkum dari topik pengerjaan, bukan transkrip verbatim percakapan.
+
+1. **Menyesuaikan serializer untuk model Experience**
+
+   > *"Di Tutorial 07 contohnya pakai ProjectSerializer. Kalau diterapkan ke Experience, field apa saja yang perlu dimasukkan dan bagaimana supaya jumlah star serta status star pengguna tidak bisa diubah dari input API?"*
+
+   **Konteks & Tujuan:** Digunakan untuk memahami penyesuaian `ModelSerializer` terhadap model Experience, penulisan field secara eksplisit, validasi teks dengan `strip_tags`, serta penggunaan `SerializerMethodField` untuk informasi star yang bersifat read-only.
+
+2. **Menerapkan permission empat peran pada API**
+
+   > *"Bagaimana cara membuat permission supaya pengunjung hanya bisa membaca, pengguna biasa bisa memberi star, Editor bisa mengedit Experience, tetapi hanya pemilik yang boleh menambah dan menghapus? Apa view lama juga perlu disesuaikan?"*
+
+   **Konteks & Tujuan:** Digunakan untuk mencocokkan `IsPortfolioOwnerOrEditorOrReadOnly` dengan aturan Tugas 6 dan memastikan view lama tidak memberikan izin yang lebih luas. Endpoint star tetap memakai `IsAuthenticated` dan mengambil akun dari `request.user`.
+
+3. **Mengubah penyimpanan form edit menjadi PATCH melalui fetch**
+
+   > *"Halaman edit Experience saya masih submit POST ke view lama. Bagaimana cara mempertahankan form itu, tetapi menyimpan perubahan lewat PATCH ke API tanpa reload? Token CSRF dan pesan error 400 atau 403 ditangani di bagian mana?"*
+
+   **Konteks & Tujuan:** Digunakan untuk menghubungkan halaman edit dengan endpoint detail DRF melalui payload JSON dan header `X-CSRFToken`, menampilkan respons lewat toast, serta mencegah pengiriman ganda selama request. Pola edit tersebut kemudian diterapkan juga pada Project dengan hak akses sesuai Tutorial 07.
+
+4. **Menggabungkan filter kategori dengan pencarian AJAX**
+
+   > *"Saya ingin menambahkan filter kategori Experience yang bisa dipakai bersamaan dengan pencarian judul. Bagaimana mengirim kedua query parameter ke API dan mempertahankan filter setelah memberi star atau menambah data? Dropdown-nya juga ingin dibuat kecil dan menyatu dengan kolom pencarian."*
+
+   **Konteks & Tujuan:** Digunakan untuk mengembangkan filtering melalui `request.query_params` dan Django ORM tanpa membuat model baru. `fetchExperiences()` membaca kategori aktif setiap kali memuat daftar, sedangkan dropdown mengambil pilihan dari model dan ditempatkan di sisi kanan pencarian agar tampilannya tetap ringkas.
+
+#### Keterbatasan AI dan Pemahaman Saya
+
+Penjelasan dan susunan logika dari AI tetap perlu dicocokkan dengan struktur proyek. Pola Project tidak dapat diterapkan begitu saja ke Experience karena field dan hak aksesnya berbeda. Contohnya, Editor boleh melakukan PUT/PATCH pada Experience, sedangkan perubahan Project tetap dibatasi kepada pemilik. Dari pembahasan ini, saya memahami bahwa kesamaan alur request tidak berarti seluruh aturan kedua bagian harus disamakan.
+
+Pada filter kategori, perubahan tidak cukup dilakukan pada dropdown saja. Nilainya harus diteruskan ke query parameter dan dibaca kembali setiap kali daftar dimuat ulang. Saya memahami bahwa jika kategori hanya dikirim saat dropdown berubah, hasil daftar setelah memberi star atau menambah data dapat kembali mengabaikan filter. Karena itu, logika kategori ditempatkan pada fungsi pemuatan daftar yang digunakan bersama oleh interaksi tersebut.
+
+AI juga memberikan beberapa alternatif tampilan yang belum langsung sesuai dengan kebutuhan saya. Saya mengarahkan revisi agar pilihan tetap berbentuk dropdown dan tidak menambah baris kategori. Hal ini membantu saya membedakan logika yang sudah berfungsi dengan antarmuka yang nyaman digunakan. Pemeriksaan terbaru pada 9 November 2026 menghasilkan Django check tanpa masalah dan 25 test bawaan lulus. Filter kategori juga sudah diperiksa melalui browser desktop dan mobile. Hasil tersebut menjadi bukti untuk bagian yang telah diperiksa; seluruh interaksi edit per peran dan deployment akhir belum diperiksa ulang melalui browser. Dokumentasi dan jawaban reflektif yang dibantu AI tetap perlu saya baca ulang serta cocokkan dengan implementasi.

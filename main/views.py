@@ -63,11 +63,14 @@ def show_main(request):
 
 def show_experience(request):
     title_query = request.GET.get("title", "").strip()
+    category_query = request.GET.get("category", "").strip()
     
     is_editor = request.user.groups.filter(name='Editor').exists() if request.user.is_authenticated else False
     context = {
         "name": "Azzam Zawawi Al Rasyid",
         "title_query": title_query,
+        "category_query": category_query,
+        "experience_categories": Experience.EXPERIENCE_CHOICES,
         "is_editor": is_editor,
         "form": ExperienceForm(),
     }
@@ -121,6 +124,7 @@ def get_experience_json(request):
 
     return JsonResponse(data, safe=False)
 
+@require_POST
 def create_experience_ajax(request):
     if not request.user.is_superuser:
         return JsonResponse(
@@ -164,6 +168,7 @@ def edit_experience(request, experience_id):
         "name": "Azzam Zawawi Al Rasyid",
         "form": form,
         "is_edit" : True,
+        "experience": experience,
     }
     return render(request, "experience_form.html", context)
 
@@ -268,7 +273,7 @@ def delete_project(request, project_id):
 
 @login_required(login_url="/login/")
 def edit_project(request, project_id):
-    if not (request.user.is_superuser or request.user.groups.filter(name='Editor').exists()):
+    if not request.user.is_superuser:
         raise PermissionDenied
     project = get_object_or_404(Project, pk=project_id)
     form = ProjectForm(request.POST or None, instance=project)
@@ -281,6 +286,7 @@ def edit_project(request, project_id):
         "name": "Azzam Zawawi Al Rasyid",
         "form": form,
         "is_edit" : True,
+        "project": project,
     }
     return render(request, "project_form.html", context)
 
